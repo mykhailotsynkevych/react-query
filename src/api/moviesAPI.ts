@@ -21,22 +21,15 @@ export interface SearchMoviesResponse {
   total_results: number
 }
 
-export default async function searchMovies(
-  query: string,
-  page = 1,
-): Promise<SearchMoviesResponse> {
-
-
+async function fetchMovies(endpoint: string, params?: Record<string, string | number | boolean>): Promise<SearchMoviesResponse> {
   if (!TOKEN) {
     throw new Error('VITE_TMDB_TOKEN is not defined')
   }
 
-  const { data } = await axios.get<SearchMoviesResponse>(`${TMDB_API_URL}/search/movie`, {
+  const { data } = await axios.get<SearchMoviesResponse>(`${TMDB_API_URL}${endpoint}`, {
     params: {
-      query,
-      include_adult: false,
       language: TMDB_LANGUAGE,
-      page,
+      ...params,
     },
     headers: {
       accept: 'application/json',
@@ -44,5 +37,20 @@ export default async function searchMovies(
     },
   })
 
-  return data;
+  return data
+}
+
+export async function fetchNewMovies(page = 1): Promise<SearchMoviesResponse> {
+  return fetchMovies('/movie/now_playing', { page })
+}
+
+export default async function searchMovies(
+  query: string,
+  page = 1,
+): Promise<SearchMoviesResponse> {
+  return fetchMovies('/search/movie', {
+    query,
+    include_adult: false,
+    page,
+  })
 }

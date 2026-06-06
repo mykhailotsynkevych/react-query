@@ -1,40 +1,57 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import "modern-normalize";
 import toast from 'react-hot-toast'
 import './index.css'
-import searchMovies from './api/searchMovies'
+import searchMovies, { fetchNewMovies } from './api/moviesAPI'
 import ErrorMessage from './components/ErrorMessage'
 import Loader from './components/Loader'
 import MovieGrid from './components/MovieGrid'
 import MovieModal from './components/MovieModal'
 import SearchBar from './components/SearchBar'
+import mapMovieToUiMovie from './helpers/mapMovieToUiMovie'
 import type { Movie } from './types/types'
-
-const TMDB_IMAGE_BASE_URL = import.meta.env.VITE_TMDB_IMAGE_BASE_URL
-
-function mapMovieToUiMovie(movie: Awaited<ReturnType<typeof searchMovies>>['results'][number]): Movie {
-  const posterPath = movie.poster_path ?? movie.backdrop_path ?? ''
-  const backdropPath = movie.backdrop_path ?? movie.poster_path ?? ''
-
-  return {
-    id: movie.id,
-    title: movie.title,
-    year: movie.release_date ? movie.release_date.slice(0, 4) : 'Unknown',
-    poster: posterPath ? `${TMDB_IMAGE_BASE_URL}${posterPath}` : '',
-    backdrop: backdropPath ? `https://image.tmdb.org/t/p/original${backdropPath}` : '',
-    overview: movie.overview || 'No overview available.',
-    releaseDate: movie.release_date || 'Unknown',
-    vote: movie.vote_average ? `${movie.vote_average}/10` : 'No rating',
-  }
-}
 
 function App() {
   const [movies, setMovies] = useState<Movie[]>([])
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [requestErrorMessage, setRequestErrorMessage] = useState('')
+  const activeRequestId = useRef(0)
+
+  useEffect(() => {
+    const requestId = ++activeRequestId.current
+
+    const loadNewMovies = async () => {
+      setRequestErrorMessage('')
+      setIsLoading(true)
+
+      try {
+        const response = await fetchNewMovies()
+        if (requestId !== activeRequestId.current) {
+          return
+        }
+
+        setMovies(response.results.map(mapMovieToUiMovie))
+      } catch (error) {
+        if (requestId !== activeRequestId.current) {
+          return
+        }
+
+        setMovies([])
+        setRequestErrorMessage(error instanceof Error ? error.message : 'Something went wrong.')
+      } finally {
+        if (requestId === activeRequestId.current) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    void loadNewMovies()
+  }, [])
 
   const handleSearchSubmit = async (query: string) => {
+    const requestId = ++activeRequestId.current
+
     setMovies([])
     setSelectedMovie(null)
     setRequestErrorMessage('')
@@ -42,6 +59,10 @@ function App() {
 
     try {
       const response = await searchMovies(query)
+      if (requestId !== activeRequestId.current) {
+        return
+      }
+
       if (response.results.length === 0) {
         setMovies([])
         toast('No movies found for your request.')
@@ -50,10 +71,16 @@ function App() {
 
       setMovies(response.results.map(mapMovieToUiMovie))
     } catch (error) {
+      if (requestId !== activeRequestId.current) {
+        return
+      }
+
       setMovies([])
       setRequestErrorMessage(error instanceof Error ? error.message : 'Something went wrong.')
     } finally {
-      setIsLoading(false)
+      if (requestId === activeRequestId.current) {
+        setIsLoading(false)
+      }
     }
   }
 
