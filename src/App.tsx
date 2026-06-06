@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import "modern-normalize";
 import toast from 'react-hot-toast'
 import './index.css'
 import searchMovies from './api/searchMovies'
