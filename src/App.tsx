@@ -7,7 +7,7 @@ import Loader from './components/Loader'
 import MovieGrid from './components/MovieGrid'
 import MovieModal from './components/MovieModal'
 import SearchBar from './components/SearchBar'
-import type { Movie } from './components/types'
+import type { Movie } from './types/types'
 
 const TMDB_IMAGE_BASE_URL = import.meta.env.VITE_TMDB_IMAGE_BASE_URL
 
@@ -29,13 +29,12 @@ function mapMovieToUiMovie(movie: Awaited<ReturnType<typeof searchMovies>>['resu
 
 function App() {
   const [movies, setMovies] = useState<Movie[]>([])
-  const [submittedQuery, setSubmittedQuery] = useState('')
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [requestErrorMessage, setRequestErrorMessage] = useState('')
 
   const handleSearchSubmit = async (query: string) => {
-    setSubmittedQuery(query)
+    setMovies([])
     setSelectedMovie(null)
     setRequestErrorMessage('')
     setIsLoading(true)
@@ -59,11 +58,9 @@ function App() {
 
   return (
     <main className="app">
-        <SearchBar onSubmit={handleSearchSubmit} />
-        {isLoading && <Loader />}
-        {requestErrorMessage && <ErrorMessage message={requestErrorMessage} />}
-        <MovieGrid movies={movies} onSelect={setSelectedMovie} />
-        <MovieModal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />
+      <SearchBar onSubmit={handleSearchSubmit} />
+      {isLoading ? <Loader /> : requestErrorMessage ? <ErrorMessage message={requestErrorMessage} /> : <MovieGrid movies={movies} onSelect={setSelectedMovie} />}
+      <MovieModal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />
     </main>
   )
 }

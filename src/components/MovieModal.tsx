@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import type { MouseEvent } from 'react'
-import type { MovieModalProps } from './types'
+import type { MovieModalProps } from '../types/types'
 
 export default function MovieModal({ movie, onClose }: MovieModalProps) {
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function MovieModal({ movie, onClose }: MovieModalProps) {
         <button className="closeButton" type="button" onClick={onClose} aria-label="Close modal">
           &times;
         </button>
-        <img className="image" src={movie.backdrop || movie.poster} alt={movie.title} />
+        <img className="image" src={movie.backdrop || movie.poster} alt={movie.title} loading="lazy"/>
         <div className="content">
           <h2 id="movie-modal-title">{movie.title}</h2>
           <p>{movie.overview}</p>

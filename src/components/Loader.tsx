@@ -1,4 +1,4 @@
-import type { LoaderProps } from './types'
+import type { LoaderProps } from '../types/types'
 
 export default function Loader({ message = 'Loading movies...' }: LoaderProps) {
   return (

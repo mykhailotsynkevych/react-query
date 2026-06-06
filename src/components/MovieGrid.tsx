@@ -1,4 +1,4 @@
-import type { MovieGridProps } from './types'
+import type { MovieGridProps } from '../types/types'
 
 export default function MovieGrid({ movies, onSelect }: MovieGridProps) {
   if (movies.length === 0) {
@@ -21,7 +21,7 @@ export default function MovieGrid({ movies, onSelect }: MovieGridProps) {
             }
           }}
         >
-          <img className="image" src={movie.poster} alt={movie.title} />
+          <img className="image" src={movie.poster} alt={movie.title} loading="lazy"/>
           <h2 className="title">
             {movie.title} ({movie.year})
           </h2>
