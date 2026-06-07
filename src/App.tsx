@@ -1,96 +1,76 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from "react";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import "modern-normalize";
-import toast from 'react-hot-toast'
-import './index.css'
-import searchMovies, { fetchNewMovies } from './api/moviesAPI'
-import ErrorMessage from './components/ErrorMessage'
-import Loader from './components/Loader'
-import MovieGrid from './components/MovieGrid'
-import MovieModal from './components/MovieModal'
-import SearchBar from './components/SearchBar'
-import mapMovieToUiMovie from './helpers/mapMovieToUiMovie'
-import type { Movie } from './types/types'
+import toast from "react-hot-toast";
+import "./index.css";
+import { searchMovies, fetchNewMovies } from "./api/moviesAPI";
+import ErrorMessage from "./components/ErrorMessage";
+import Loader from "./components/Loader";
+import MovieGrid from "./components/MovieGrid";
+import MovieModal from "./components/MovieModal";
+import SearchBar from "./components/SearchBar";
+import Pagination from "./components/Pagination";
+import mapMovieToUiMovie from "./helpers/mapMovieToUiMovie";
+import type { Movie } from "./types/types";
 
 function App() {
-  const [movies, setMovies] = useState<Movie[]>([])
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [requestErrorMessage, setRequestErrorMessage] = useState('')
-  const activeRequestId = useRef(0)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+
+  const { data, error, isLoading, isError, isSuccess } = useQuery({
+    queryKey: ["movies", searchQuery, currentPage],
+    queryFn: () =>
+      searchQuery.trim()
+        ? searchMovies(searchQuery, currentPage)
+        : fetchNewMovies(currentPage),
+    placeholderData: keepPreviousData,
+  });
 
   useEffect(() => {
-    const requestId = ++activeRequestId.current
-
-    const loadNewMovies = async () => {
-      setRequestErrorMessage('')
-      setIsLoading(true)
-
-      try {
-        const response = await fetchNewMovies()
-        if (requestId !== activeRequestId.current) {
-          return
-        }
-
-        setMovies(response.results.map(mapMovieToUiMovie))
-      } catch (error) {
-        if (requestId !== activeRequestId.current) {
-          return
-        }
-
-        setMovies([])
-        setRequestErrorMessage(error instanceof Error ? error.message : 'Something went wrong.')
-      } finally {
-        if (requestId === activeRequestId.current) {
-          setIsLoading(false)
-        }
-      }
+    if (data && data.results.length === 0) {
+      toast("No movies found for your request.");
     }
+  }, [data]);
 
-    void loadNewMovies()
-  }, [])
+  const handleSearchSubmit = (query: string) => {
+    setSelectedMovie(null);
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
 
-  const handleSearchSubmit = async (query: string) => {
-    const requestId = ++activeRequestId.current
-
-    setMovies([])
-    setSelectedMovie(null)
-    setRequestErrorMessage('')
-    setIsLoading(true)
-
-    try {
-      const response = await searchMovies(query)
-      if (requestId !== activeRequestId.current) {
-        return
-      }
-
-      if (response.results.length === 0) {
-        setMovies([])
-        toast('No movies found for your request.')
-        return
-      }
-
-      setMovies(response.results.map(mapMovieToUiMovie))
-    } catch (error) {
-      if (requestId !== activeRequestId.current) {
-        return
-      }
-
-      setMovies([])
-      setRequestErrorMessage(error instanceof Error ? error.message : 'Something went wrong.')
-    } finally {
-      if (requestId === activeRequestId.current) {
-        setIsLoading(false)
-      }
-    }
-  }
+  const movies = data?.results.map(mapMovieToUiMovie) ?? [];
 
   return (
     <main className="app">
       <SearchBar onSubmit={handleSearchSubmit} />
-      {isLoading ? <Loader /> : requestErrorMessage ? <ErrorMessage message={requestErrorMessage} /> : <MovieGrid movies={movies} onSelect={setSelectedMovie} />}
-      <MovieModal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />
+      {isLoading ? (
+        <Loader />
+      ) : isError ? (
+        <ErrorMessage
+          message={
+            error instanceof Error ? error.message : "Something went wrong."
+          }
+        />
+      ) : (
+        <div>
+          {isSuccess && data.total_pages > 1 && (
+            <Pagination
+              totalPages={data.total_pages}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
+          )}
+          <MovieGrid movies={movies} onSelect={setSelectedMovie} />
+        </div>
+      )}
+
+      <MovieModal
+        movie={selectedMovie}
+        onClose={() => setSelectedMovie(null)}
+      />
     </main>
-  )
+  );
 }
 
-export default App
+export default App;
