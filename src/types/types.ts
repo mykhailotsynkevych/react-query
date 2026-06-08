@@ -1,3 +1,4 @@
+//MOVIE TYPES
 export type Movie = {
   id: number
   title: string
@@ -29,4 +30,10 @@ export interface ErrorMessageProps {
 export interface MovieModalProps {
   movie: Movie | null
   onClose: () => void
+}
+
+//NOTEHUB TYPES
+export interface NotehubSearchBarProps {
+  value: string
+  onChange: (value: string) => void
 }

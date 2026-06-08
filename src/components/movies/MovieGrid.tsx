@@ -1,4 +1,4 @@
-import type { MovieGridProps } from '../types/types'
+import type { MovieGridProps } from '../../types/types'
 
 export default function MovieGrid({ movies, onSelect }: MovieGridProps) {
   if (movies.length === 0) {

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import type { MouseEvent } from 'react'
-import type { MovieModalProps } from '../types/types'
+import type { MovieModalProps } from '../../types/types'
 
 export default function MovieModal({ movie, onClose }: MovieModalProps) {
   useEffect(() => {

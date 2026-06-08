@@ -1,6 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import type { SearchBarProps } from "../types/types";
+import type { SearchBarProps } from "../../types/types";
 
 export default function SearchBar({ onSubmit }: SearchBarProps) {
   const [query, setQuery] = useState("");

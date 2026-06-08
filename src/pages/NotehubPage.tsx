@@ -1,9 +1,13 @@
-function NotehubPage() {
-  return (
-    <section className="notehub-page">
-      <div className="notehub-page__content">
-        <h1 className="notehub-page__title">Notehub page</h1>
+import SearchBar from "../components/notehub/SearchBar";
 
+function NotehubPage() {
+  const onChange = (query: string) => {
+    console.log("Search query submitted:", query);
+  };
+  return (
+    <section>
+      <div className="notehub-toolbar">
+        <SearchBar value="" onChange={onChange} />
       </div>
     </section>
   );

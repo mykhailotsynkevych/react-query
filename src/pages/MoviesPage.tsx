@@ -3,12 +3,12 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import "modern-normalize";
 import toast from "react-hot-toast";
 import { searchMovies, fetchNewMovies } from "../api/moviesAPI";
-import ErrorMessage from "../components/ErrorMessage";
-import Loader from "../components/Loader";
-import MovieGrid from "../components/MovieGrid";
-import MovieModal from "../components/MovieModal";
-import SearchBar from "../components/SearchBar";
-import Pagination from "../components/Pagination";
+import ErrorMessage from "../components/movies/ErrorMessage";
+import Loader from "../components/movies/Loader";
+import MovieGrid from "../components/movies/MovieGrid";
+import MovieModal from "../components/movies/MovieModal";
+import SearchBar from "../components/movies/SearchBar";
+import Pagination from "../components/movies/Pagination";
 import mapMovieToUiMovie from "../helpers/mapMovieToUiMovie";
 import type { Movie } from "../types/types";
 
