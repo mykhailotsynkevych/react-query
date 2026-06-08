@@ -17,7 +17,7 @@ export default function SearchBar({ onSubmit }: SearchBarProps) {
   };
 
   return (
-    <header className="header">
+    <div className="header">
       <div className="container">
         <a
           className="link"
@@ -43,6 +43,6 @@ export default function SearchBar({ onSubmit }: SearchBarProps) {
           </button>
         </form>
       </div>
-    </header>
+    </div>
   );
 }

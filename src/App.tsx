@@ -1,75 +1,42 @@
-import { useEffect, useState } from "react";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import "modern-normalize";
-import toast from "react-hot-toast";
 import "./index.css";
-import { searchMovies, fetchNewMovies } from "./api/moviesAPI";
-import ErrorMessage from "./components/ErrorMessage";
-import Loader from "./components/Loader";
-import MovieGrid from "./components/MovieGrid";
-import MovieModal from "./components/MovieModal";
-import SearchBar from "./components/SearchBar";
-import Pagination from "./components/Pagination";
-import mapMovieToUiMovie from "./helpers/mapMovieToUiMovie";
-import type { Movie } from "./types/types";
+import { NavLink, Navigate, Route, Routes } from "react-router-dom";
+import MoviesPage from "./pages/MoviesPage";
+import NotehubPage from "./pages/NotehubPage";
 
 function App() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-
-  const { data, error, isLoading, isError, isSuccess } = useQuery({
-    queryKey: ["movies", searchQuery, currentPage],
-    queryFn: () =>
-      searchQuery.trim()
-        ? searchMovies(searchQuery, currentPage)
-        : fetchNewMovies(currentPage),
-    placeholderData: keepPreviousData,
-  });
-
-  useEffect(() => {
-    if (data && data.results.length === 0) {
-      toast("No movies found for your request.");
-    }
-  }, [data]);
-
-  const handleSearchSubmit = (query: string) => {
-    setSelectedMovie(null);
-    setSearchQuery(query);
-    setCurrentPage(1);
-  };
-
-  const movies = data?.results.map(mapMovieToUiMovie) ?? [];
-
   return (
-    <main className="app">
-      <SearchBar onSubmit={handleSearchSubmit} />
-      {isLoading ? (
-        <Loader />
-      ) : isError ? (
-        <ErrorMessage
-          message={
-            error instanceof Error ? error.message : "Something went wrong."
-          }
-        />
-      ) : (
-        <div>
-          {isSuccess && data.total_pages > 1 && (
-            <Pagination
-              totalPages={data.total_pages}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-            />
-          )}
-          <MovieGrid movies={movies} onSelect={setSelectedMovie} />
-        </div>
-      )}
+    <div className="app-shell">
+      <header className="app-header">
+        <nav className="app-nav" aria-label="Primary navigation">
+          <NavLink
+            className={({ isActive }) =>
+              isActive ? "app-nav__link app-nav__link--active" : "app-nav__link"
+            }
+            to="/movies"
+          >
+            Movies
+          </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              isActive ? "app-nav__link app-nav__link--active" : "app-nav__link"
+            }
+            to="/notuhubes"
+          >
+            Notehub
+          </NavLink>
+        </nav>
+      </header>
 
-      <MovieModal
-        movie={selectedMovie}
-        onClose={() => setSelectedMovie(null)}
-      />
-    </main>
+      <main className="app">
+        <Routes>
+          <Route path="/" element={<Navigate to="/movies" replace />} />
+          <Route path="/movies" element={<MoviesPage />} />
+          <Route path="/notuhubes" element={<NotehubPage />} />
+          <Route path="*" element={<Navigate to="/movies" replace />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 
