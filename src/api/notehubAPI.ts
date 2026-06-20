@@ -47,3 +47,21 @@ export async function searchNotes(
     page,
   });
 }
+
+export async function deleteNote(noteId: string): Promise<Note> {
+  if (!TOKEN) {
+    throw new Error("VITE_NOTEHUB_TOKEN is not defined");
+  }
+
+  const { data } = await axios.delete<Note>(
+    `${NOTEHUB_API_URL}/notes/${encodeURIComponent(noteId)}`,
+    {
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${TOKEN}`,
+      },
+    },
+  );
+
+  return data;
+}

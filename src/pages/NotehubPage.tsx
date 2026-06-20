@@ -1,8 +1,14 @@
 import { useState } from "react";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  keepPreviousData,
+  useQueryClient,
+} from "@tanstack/react-query";
 import "modern-normalize";
+import toast from "react-hot-toast";
 
-import { searchNotes, fetchAllNotes } from "../api/notehubAPI";
+import { searchNotes, fetchAllNotes, deleteNote } from "../api/notehubAPI";
 
 import SearchBar from "../components/notehub/SearchBar";
 import Pagination from "../components/movies/Pagination";
@@ -12,6 +18,7 @@ function NotehubPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const normalizedQuery = searchQuery.trim();
+  const queryClient = useQueryClient();
 
   const { data, error, isLoading, isError, isSuccess } = useQuery({
     queryKey: ["notes", normalizedQuery, currentPage],
@@ -26,11 +33,27 @@ function NotehubPage() {
     setSearchQuery(query);
     setCurrentPage(1);
   };
-  
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      toast.success("Note deleted");
+    },
+    onError: () => {
+      toast.error("Failed to delete note");
+    },
+  });
+
+  const onDelete = (id: string) => {
+    deleteMutation.mutate(id);
+  };
+
+  console.log(data);
 
   return (
-    <section>
-      <div className="notehub-toolbar">
+    <>
+      <header className="notehub-toolbar">
         <SearchBar value={searchQuery} onChange={onChange} />
         {isSuccess && data.totalPages > 1 && (
           <Pagination
@@ -40,17 +63,17 @@ function NotehubPage() {
           />
         )}
         <button className="notehub-createButton">Create note +</button>
-      </div>
+      </header>
       {isLoading ? (
         <p>Loading notes...</p>
       ) : isError ? (
         <p>{error?.message}</p>
       ) : (
         <div>
-          <NoteList notes={data?.notes || []} />
+          <NoteList notes={data?.notes || []} onDelete={onDelete} />
         </div>
       )}
-    </section>
+    </>
   );
 }
 

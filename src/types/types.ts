@@ -39,7 +39,7 @@ export interface NotehubSearchBarProps {
 }
 
 export type Note = {
-  id: number;
+  id: string;
   title: string | null;
   content: string | null;
   createdAt: string;
@@ -49,5 +49,5 @@ export type Note = {
 
 export interface NoteListProps {
   notes: Note[]
-  // onSelect: (movie: Movie) => void
+  onDelete: (id: string) => void
 }

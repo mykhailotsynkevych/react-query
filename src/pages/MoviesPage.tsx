@@ -9,7 +9,7 @@ import MovieGrid from "../components/movies/MovieGrid";
 import MovieModal from "../components/movies/MovieModal";
 import SearchBar from "../components/movies/SearchBar";
 import Pagination from "../components/movies/Pagination";
-import mapMovieToUiMovie from "../helpers/mapMovieToUiMovie";
+import {mapMovieToUiMovie} from "../helpers/helpers";
 import type { Movie } from "../types/types";
 
 function MoviesPage() {
