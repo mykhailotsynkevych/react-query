@@ -37,3 +37,17 @@ export interface NotehubSearchBarProps {
   value: string
   onChange: (value: string) => void
 }
+
+export type Note = {
+  id: number;
+  title: string | null;
+  content: string | null;
+  createdAt: string;
+  updatedAt: string;
+  tag: string;
+};
+
+export interface NoteListProps {
+  notes: Note[]
+  // onSelect: (movie: Movie) => void
+}
