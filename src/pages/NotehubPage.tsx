@@ -13,12 +13,15 @@ import { searchNotes, fetchAllNotes, deleteNote } from "../api/notehubAPI";
 import SearchBar from "../components/notehub/SearchBar";
 import Pagination from "../components/movies/Pagination";
 import NoteList from "../components/notehub/NoteList";
+import NoteModal from "../components/notehub/NoteModal";
+import NoteForm from "../components/notehub/NoteForm";
 
 function NotehubPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const normalizedQuery = searchQuery.trim();
   const queryClient = useQueryClient();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, error, isLoading, isError, isSuccess } = useQuery({
     queryKey: ["notes", normalizedQuery, currentPage],
@@ -49,8 +52,6 @@ function NotehubPage() {
     deleteMutation.mutate(id);
   };
 
-  console.log(data);
-
   return (
     <>
       <header className="notehub-toolbar">
@@ -62,7 +63,12 @@ function NotehubPage() {
             onPageChange={setCurrentPage}
           />
         )}
-        <button className="notehub-createButton">Create note +</button>
+        <button
+          className="notehub-createButton"
+          onClick={() => setIsModalOpen(true)}
+        >
+          Create note +
+        </button>
       </header>
       {isLoading ? (
         <p>Loading notes...</p>
@@ -70,8 +76,18 @@ function NotehubPage() {
         <p>{error?.message}</p>
       ) : (
         <div>
-          <NoteList notes={data?.notes || []} onDelete={onDelete} />
+          {isSuccess && data.notes.length === 0 ? (
+            <p>No notes found.</p>
+          ) : (
+            <NoteList notes={data?.notes || []} onDelete={onDelete} />
+          )}
         </div>
+      )}
+      {isModalOpen && (
+        <NoteModal
+          children={<NoteForm />}
+          onClose={() => setIsModalOpen(false)}
+        />
       )}
     </>
   );

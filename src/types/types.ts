@@ -51,3 +51,8 @@ export interface NoteListProps {
   notes: Note[]
   onDelete: (id: string) => void
 }
+
+export interface NoteModalProps {
+  children: React.ReactNode
+  onClose: () => void
+}

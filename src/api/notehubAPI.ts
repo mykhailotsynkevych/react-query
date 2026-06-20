@@ -23,6 +23,7 @@ async function fetchNotes(
     {
       params: {
         ...params,
+        perPage: 12,
       },
       headers: {
         accept: "application/json",
