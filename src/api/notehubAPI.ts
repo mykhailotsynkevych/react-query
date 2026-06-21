@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import type { Note } from "../types/types";
+import type { Note, NoteFormValues } from "../types/types";
 
 const TOKEN = import.meta.env.VITE_NOTEHUB_TOKEN;
 const NOTEHUB_API_URL = import.meta.env.VITE_NOTEHUB_URL;
@@ -63,6 +63,21 @@ export async function deleteNote(noteId: string): Promise<Note> {
       },
     },
   );
+
+  return data;
+}
+
+export async function createNote(noteData: NoteFormValues): Promise<Note> {
+  if (!TOKEN) {
+    throw new Error("VITE_NOTEHUB_TOKEN is not defined");
+  }
+
+  const { data } = await axios.post<Note>(`${NOTEHUB_API_URL}/notes`, noteData, {
+    headers: {
+      accept: "application/json",
+      Authorization: `Bearer ${TOKEN}`,
+    },
+  });
 
   return data;
 }

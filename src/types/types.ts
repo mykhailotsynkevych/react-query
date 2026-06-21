@@ -56,3 +56,16 @@ export interface NoteModalProps {
   children: React.ReactNode
   onClose: () => void
 }
+
+export type NoteTag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping"
+
+export interface NoteFormValues {
+  title: string
+  content: string
+  tag: NoteTag
+}
+
+export interface NoteFormProps {
+  onSubmit: (values: NoteFormValues) => Promise<void> | void
+  onCancel: () => void
+}

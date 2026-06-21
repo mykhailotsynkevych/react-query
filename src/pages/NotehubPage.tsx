@@ -8,7 +8,13 @@ import {
 import "modern-normalize";
 import toast from "react-hot-toast";
 
-import { searchNotes, fetchAllNotes, deleteNote } from "../api/notehubAPI";
+import {
+  searchNotes,
+  fetchAllNotes,
+  deleteNote,
+  createNote,
+} from "../api/notehubAPI";
+import type { NoteFormValues } from "../types/types";
 
 import SearchBar from "../components/notehub/SearchBar";
 import Pagination from "../components/movies/Pagination";
@@ -52,6 +58,22 @@ function NotehubPage() {
     deleteMutation.mutate(id);
   };
 
+  const createMutation = useMutation({
+    mutationFn: createNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      toast.success("Note created");
+      setIsModalOpen(false);
+    },
+    onError: () => {
+      toast.error("Failed to create note");
+    },
+  });
+
+  const handleCreateNote = async (values: NoteFormValues) => {
+    await createMutation.mutateAsync(values);
+  };
+
   return (
     <>
       <header className="notehub-toolbar">
@@ -85,7 +107,12 @@ function NotehubPage() {
       )}
       {isModalOpen && (
         <NoteModal
-          children={<NoteForm />}
+          children={
+            <NoteForm
+              onCancel={() => setIsModalOpen(false)}
+              onSubmit={handleCreateNote}
+            />
+          }
           onClose={() => setIsModalOpen(false)}
         />
       )}
