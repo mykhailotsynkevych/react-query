@@ -5,6 +5,7 @@ import {
   keepPreviousData,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useDebounce } from "use-debounce";
 import "modern-normalize";
 import toast from "react-hot-toast";
 
@@ -25,15 +26,16 @@ import NoteForm from "../components/notehub/NoteForm";
 function NotehubPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const normalizedQuery = searchQuery.trim();
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 200);
+  const normalizedDebouncedQuery = debouncedSearchQuery.trim();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, error, isLoading, isError, isSuccess } = useQuery({
-    queryKey: ["notes", normalizedQuery, currentPage],
+    queryKey: ["notes", normalizedDebouncedQuery, currentPage],
     queryFn: () =>
-      normalizedQuery
-        ? searchNotes(normalizedQuery, currentPage)
+      normalizedDebouncedQuery
+        ? searchNotes(normalizedDebouncedQuery, currentPage)
         : fetchAllNotes(currentPage),
     placeholderData: keepPreviousData,
   });
